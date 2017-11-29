@@ -3,10 +3,18 @@ class OrderedArray extends Array{
         super(...args);
 
         this.setDefaultEquals();
+
+        if (arguments.length > 1){
+            this.resort();
+        }
     }
 
     setEquals(func){
         this._equalsHandler = func;
+
+        if (this.length > 1){
+            this.resort();
+        }
     }
 
     setDefaultEquals(){
@@ -14,7 +22,10 @@ class OrderedArray extends Array{
     }
 
     defaultEquals(a, b){
-        return b < a ? 1 : b === a ? 0 : -1;
+        if (a === b) {
+            return 0;
+        }
+        return a < b ? -1 : 1;
     }
 
     resort(){
@@ -22,17 +33,20 @@ class OrderedArray extends Array{
     }
 
     insert(entity){
-        if (typeof this._equalsHandler !== 'function'){
-            return this.push(entity);
-        }
+        let index = this.length;
+        this.push(entity);
 
-        for(let i = 0; i <= this.length; i++){
-            if (this._equalsHandler(this[i], entity)){
-                return this.splice(i, 0, entity);
+        while (index > 0) {
+            const i = index, j = --index;
+
+            if (this._equalsHandler(this[i], this[j]) < 0) {
+                const temp = this[i];
+                this[i] = this[j];
+                this[j] = temp;
+            } else {
+                return;
             }
         }
-
-        return this.push(entity);
     }
 
     remove(entity){
